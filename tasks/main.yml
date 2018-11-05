@@ -51,6 +51,25 @@
     content: '{{ uri_result.content }}'
     dest: '{{ ansible_env.HOME }}/.config/nvim/init.vim'
 
+- name: Ensure nvim plugins are installed
+  shell: nvim +PlugInstall +qall --headless
+  register: nvim_plugins_install_command
+  changed_when: nvim_plugins_install_command.stderr != ""
+  failed_when: nvim_plugins_install_command.rc !=0 or "Error" in nvim_plugins_install_command.stderr
+
+# nocompatible prevents home and end buttons from inserting H and F characters
+- name: Apply customized vim settings
+  blockinfile:
+    dest: "{{ ansible_env.HOME }}/.config/nvim/local_init.vim"
+    create: true
+    marker: ' " {mark} ANSIBLE MANAGED BLOCK'
+    block: |
+      colorscheme zenburn
+      set nocompatible
+      let g:airline_theme = 'lucius'
+      autocmd FileType python setlocal colorcolumn=99
+      set guicursor=
+
 - name: Add custom plugins
   blockinfile:
     dest: "{{ ansible_env.HOME }}/.config/nvim/local_bundles.vim"
@@ -58,9 +77,3 @@
     marker: ' " {mark} ANSIBLE MANAGED BLOCK'
     block: |
       Plug 'vim-scripts/Zenburn'
-
-- name: Ensure nvim plugins are installed
-  shell: nvim +PlugInstall +qall --headless
-  register: nvim_plugins_install_command
-  changed_when: nvim_plugins_install_command.stderr != ""
-  failed_when: nvim_plugins_install_command.rc !=0 or "Error" in nvim_plugins_install_command.stderr
