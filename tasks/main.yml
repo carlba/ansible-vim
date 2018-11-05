@@ -22,7 +22,6 @@
 - name: Ensure neovim is the latest version
   become: "{{ (ansible_os_family in ['Darwin']) | ternary('false', 'true') }}"
   package: name=neovim state=latest
-  when: ansible_os_family not in ['RedHat']
 
 - name: Install neovim Python library
   become: "{{ (ansible_os_family in ['Darwin']) | ternary('false', 'true') }}"
