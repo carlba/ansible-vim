@@ -13,6 +13,9 @@
 - include: macos.yml
   when: ansible_os_family in ['Darwin']
 
+- include: ubuntu.yml
+  when: is_privileged_user and ansible_distribution in ['Ubuntu']
+
 - include: rhel.yml
   when: is_privileged_user and ansible_os_family in ['RedHat']
 
