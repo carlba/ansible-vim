@@ -1,5 +1,68 @@
 ---
 
+- name: Get installed neovim version
+  shell: "nvim --version | head -n 1"
+  register: neovim_version_output
+  changed_when: false
+
+- name: Ensure apt cache is updated on Debian based OSes
+  become: true
+  apt: update_cache=true cache_valid_time=3600
+  when: is_privileged_user and ansible_os_family == 'Debian'
+
 - include: macos.yml
   when: ansible_os_family in ['Darwin']
 
+- include: rhel.yml
+  when: is_privileged_user and ansible_os_family in ['RedHat']
+
+- name: Ensure neovim is the latest version
+  become: "{{ (ansible_os_family in ['Darwin']) | ternary('false', 'true') }}"
+  package: name=neovim state=latest
+  when: ansible_os_family not in ['RedHat']
+
+- name: Install neovim Python library
+  become: "{{ (ansible_os_family in ['Darwin']) | ternary('false', 'true') }}"
+  pip:
+    name: neovim
+    executable: pip
+    extra_args: --upgrade
+
+- name: Ensure nvim config directory exists
+  file:
+    path: "{{ ansible_env.HOME }}/.config/nvim"
+    recurse: true
+    state: directory
+
+# TODO: Convert to get_url statement
+- name: Install vim-bootstrap from http://vim-bootstrap.com
+  shell: "curl 'http://vim-bootstrap.com/generate.vim' --data 'langs=javascript&langs=php&langs=html&langs=ruby&langs=python&editor=nvim' > {{ ansible_env.HOME }}/.config/nvim/init.vim"
+
+# TODO: Detect if successful?
+- name: Update vim bundles
+  shell: nvim +PlugInstall +qall --headless
+
+# nocompatible prevents home and end buttons from inserting H and F characters
+- name: Apply customized vim settings
+  blockinfile:
+    dest: "{{ ansible_env.HOME }}/.config/nvim/local_init.vim"
+    create: true
+    marker: ' " {mark} ANSIBLE MANAGED BLOCK'
+    block: |
+      colorscheme zenburn
+      set nocompatible
+      let g:airline_theme = 'lucius'
+      autocmd FileType python setlocal colorcolumn=99
+      set guicursor=
+
+- name: Add custom plugins
+  blockinfile:
+    dest: "{{ ansible_env.HOME }}/.config/nvim/local_bundles.vim"
+    create: true
+    marker: ' " {mark} ANSIBLE MANAGED BLOCK'
+    block: |
+      Plug 'vim-scripts/Zenburn'
+
+# TODO: Detect if successful?
+- name: Update vim bundles
+  shell: nvim +PlugInstall +qall --headless
