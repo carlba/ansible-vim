@@ -36,26 +36,23 @@
     recurse: true
     state: directory
 
-# TODO: Convert to get_url statement
-- name: Install vim-bootstrap from http://vim-bootstrap.com
-  shell: "curl 'http://vim-bootstrap.com/generate.vim' --data 'langs=javascript&langs=php&langs=html&langs=ruby&langs=python&editor=nvim' > {{ ansible_env.HOME }}/.config/nvim/init.vim"
+# TODO: Make this a bit cleaner
+- name: Retrieve result of vim-bootstrap post request
+  uri:
+    url: 'http://vim-bootstrap.com/generate.vim'
+    method: POST
+    return_content: true
+    body_format: form-urlencoded
+    body:
+      langs: ['javascript', 'php', 'html', 'ruby', 'python']
+      editor: nvim
+    status_code: 200
+  register: uri_result
 
-# TODO: Detect if successful?
-- name: Update vim bundles
-  shell: nvim +PlugInstall +qall --headless
-
-# nocompatible prevents home and end buttons from inserting H and F characters
-- name: Apply customized vim settings
-  blockinfile:
-    dest: "{{ ansible_env.HOME }}/.config/nvim/local_init.vim"
-    create: true
-    marker: ' " {mark} ANSIBLE MANAGED BLOCK'
-    block: |
-      colorscheme zenburn
-      set nocompatible
-      let g:airline_theme = 'lucius'
-      autocmd FileType python setlocal colorcolumn=99
-      set guicursor=
+- name: Ensure output of vim-bootstrap.com generate request is stored to init.vim
+  copy:
+    content: '{{ uri_result.content }}'
+    dest: '{{ ansible_env.HOME }}/.config/nvim/init.vim'
 
 - name: Add custom plugins
   blockinfile:
