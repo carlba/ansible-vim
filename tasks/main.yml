@@ -64,5 +64,3 @@
   register: nvim_plugins_install_command
   changed_when: nvim_plugins_install_command.stderr != ""
   failed_when: nvim_plugins_install_command.rc !=0 or "Error" in nvim_plugins_install_command.stderr
-
-
