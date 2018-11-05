@@ -1,10 +1,4 @@
 ---
-
-- name: Get installed neovim version
-  shell: "nvim --version | head -n 1"
-  register: neovim_version_output
-  changed_when: false
-
 - name: Ensure apt cache is updated on Debian based OSes
   become: true
   apt: update_cache=true cache_valid_time=3600
@@ -16,20 +10,21 @@
 - include: rhel.yml
   when: is_privileged_user and ansible_os_family in ['RedHat']
 
-- name: Ensure neovim is the latest version
+- name: 'Ensure {{ editor }} is the latest version'
   become: "{{ (ansible_os_family in ['Darwin']) | ternary('false', 'true') }}"
-  package: name=neovim state=latest
+  package: name={{ editor }} state=latest
 
-- name: Install neovim Python library
+- name: 'Install neovim Python library'
   become: "{{ (ansible_os_family in ['Darwin']) | ternary('false', 'true') }}"
   pip:
     name: neovim
     executable: pip
     extra_args: --upgrade
+  when: editor == 'neovim'
 
-- name: Ensure nvim config directory exists
+- name: 'Ensure {{ editor }} config directory exists'
   file:
-    path: "{{ ansible_env.HOME }}/.config/nvim"
+    path: '{{ vim_config_path }}'
     recurse: true
     state: directory
 
@@ -42,38 +37,46 @@
     body_format: form-urlencoded
     body:
       langs: ['javascript', 'php', 'html', 'ruby', 'python']
-      editor: nvim
+      editor: '{{ editor_command }}'
     status_code: 200
   register: uri_result
 
-- name: Ensure output of vim-bootstrap.com generate request is stored to init.vim
+- name: Ensure output of vim-bootstrap.com generate request is stored to init file
   copy:
     content: '{{ uri_result.content }}'
-    dest: '{{ ansible_env.HOME }}/.config/nvim/init.vim'
-
-- name: Ensure nvim plugins are installed
-  shell: nvim +PlugInstall +qall --headless
-  register: nvim_plugins_install_command
-  changed_when: nvim_plugins_install_command.stderr != ""
-  failed_when: nvim_plugins_install_command.rc !=0 or "Error" in nvim_plugins_install_command.stderr
-
-# nocompatible prevents home and end buttons from inserting H and F characters
-- name: Apply customized vim settings
-  blockinfile:
-    dest: "{{ ansible_env.HOME }}/.config/nvim/local_init.vim"
-    create: true
-    marker: ' " {mark} ANSIBLE MANAGED BLOCK'
-    block: |
-      colorscheme zenburn
-      set nocompatible
-      let g:airline_theme = 'lucius'
-      autocmd FileType python setlocal colorcolumn=99
-      set guicursor=
+    dest: '{{ (editor == "neovim") | ternary(ansible_env.HOME ~ "/.config/nvim/init.vim", ansible_env.HOME ~ "/.vimrc") }}'
 
 - name: Add custom plugins
   blockinfile:
-    dest: "{{ ansible_env.HOME }}/.config/nvim/local_bundles.vim"
+    dest: '{{ (editor == "neovim") | ternary(ansible_env.HOME ~ "/.config/nvim/local_bundles.vim", ansible_env.HOME ~ "/.vimrc.local.bundles") }}'
     create: true
     marker: ' " {mark} ANSIBLE MANAGED BLOCK'
     block: |
       Plug 'vim-scripts/Zenburn'
+
+- name: 'Ensure neovim plugins are installed'
+  shell: 'nvim +PlugInstall +qall --headless'
+  register: nvim_plugins_install_command
+  changed_when: nvim_plugins_install_command.stderr != ""
+  failed_when: nvim_plugins_install_command.rc !=0 or "Error" in nvim_plugins_install_command.stderr
+  when: editor == 'neovim'
+
+- name: 'Ensure vim plugins are installed'
+  shell: 'echo -n "\n" | vim +PlugInstall +qall'
+  register: vim_plugins_install_command
+  changed_when: '"Cloning into" in vim_plugins_install_command.stdout'
+  failed_when: vim_plugins_install_command.rc !=0 or "Error" in vim_plugins_install_command.stderr
+  when: editor == 'vim'
+
+# nocompatible prevents home and end buttons from inserting H and F characters
+- name: 'Apply customized {{ editor }} settings'
+  blockinfile:
+    dest: '{{ (editor == "neovim") | ternary(ansible_env.HOME ~ "/.config/nvim/local_init.vim", ansible_env.HOME ~ "/.vimrc.local") }}'
+    create: true
+    marker: ' " {mark} ANSIBLE MANAGED BLOCK'
+    block: |
+      silent! colorscheme zenburn
+      set nocompatible
+      let g:airline_theme = 'lucius'
+      autocmd FileType python setlocal colorcolumn=99
+      set guicursor=

@@ -1,2 +1,4 @@
 ---
 # vars file for ansible-vim
+vim_config_path: '{{ (editor == "neovim") | ternary(ansible_env.HOME ~ "/.config/nvim", ansible_env.HOME ~ "/.vim") }}'
+editor_command: '{{ (editor == "neovim") | ternary("nvim", "vim") }}'

@@ -30,5 +30,5 @@ dependencies:
   - { role: geerlingguy.pip, when: "ansible_os_family in ['Darwin']", pip_package: python@2}
   - role: carlba.bash_aliases
     bash_aliases:
-      - { alias: 'vi', command: 'nvim' }
-      - { alias: 'vim', command: 'nvim' }
+      - { alias: 'vi', command: '{{ editor_command }}' }
+      - { alias: 'vim', command: '{{ editor_command }}' }
