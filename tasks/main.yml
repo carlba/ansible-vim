@@ -15,9 +15,6 @@
 - include: ubuntu.yml
   when: is_privileged_user and ansible_distribution in ['Ubuntu']
 
-- include: rhel.yml
-  when: is_privileged_user and ansible_os_family in ['RedHat']
-
 - name: 'Ensure {{ editor }} is the latest version'
   become: "{{ (ansible_os_family in ['Darwin']) | ternary('false', 'true') }}"
   package: name={{ editor }} state=latest
@@ -28,7 +25,7 @@
     name: neovim
     executable: pip
     extra_args: --upgrade
-  when: editor == 'neovim'
+  when: (is_privileged_user or ansible_os_family in ['Darwin']) and editor == 'neovim'
 
 - name: 'Ensure {{ editor }} config directory exists'
   file:
