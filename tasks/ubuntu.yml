@@ -1,8 +1,9 @@
 ---
-
+# Ignored errors is used because this is no longer needed on versions after 18.04
 - name: "Install Neovim PPA"
   become: true
   apt_repository:
     repo: 'ppa:neovim-ppa/stable'
     update_cache: yes
   when: editor == 'neovim'
+  ignore_errors: true
