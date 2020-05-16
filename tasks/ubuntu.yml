@@ -5,4 +5,4 @@
   apt_repository:
     repo: 'ppa:neovim-ppa/stable'
     update_cache: yes
-  when: editor == 'neovim'
+  when: editor == 'neovim' and ansible_distribution_major_version is version('20', '<')

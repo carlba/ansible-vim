@@ -15,13 +15,19 @@
   when: is_privileged_user
 
 - include: ubuntu.yml
-  when: >
-    is_privileged_user and ansible_distribution in ['Ubuntu'] and
-    ansible_distribution_major_version is version('20', '<')
+  when: is_privileged_user and ansible_distribution in ['Ubuntu']
 
 - name: 'Ensure {{ editor }} is the latest version'
   become: "{{ (ansible_os_family in ['Darwin']) | ternary('false', 'true') }}"
   package: name={{ editor }} state=latest
+
+- name: Check pip version
+  shell: which pip || which pip3 || which pip2
+  register: pip_version_result
+
+- name: Set pip version
+  set_fact:
+    pip_executable: '{{ pip_version_result.stdout | regex_search("(pip\d?)") }}'
 
 - name: 'Install neovim Python library'
   become: "{{ (ansible_os_family in ['Darwin']) | ternary('false', 'true') }}"

@@ -2,8 +2,3 @@
 is_privileged_user: true
 editor: neovim # neovim or vim
 editor_languages: ['javascript', 'php', 'html', 'ruby', 'python']
-
-ubuntu_before_version_twenty:  '{{ true if ansible_distribution == "Ubuntu" and ansible_distribution_major_version is version("20", "<") else false}}'
-bash_profile_path: '{{ ansible_env.HOME }}/{{ ".profile" if ansible_distribution == "Ubuntu" else ".bash_profile" }}'
-pip_package: '{{ "python3-pip" if ubuntu_before_version_twenty else "python-pip" }}'
-pip_executable: '{{ "pip3" if ubuntu_before_version_twenty else "pip" }}'

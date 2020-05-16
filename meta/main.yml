@@ -26,8 +26,8 @@ galaxy_info:
   galaxy_tags: []
 dependencies:
   - { role: geerlingguy.repo-epel, when: "ansible_os_family in ['RedHat']", become: True }
-  - { role: geerlingguy.pip, when: "ansible_os_family not in ['Darwin']", become: True }
-  - { role: geerlingguy.pip, when: "ansible_os_family in ['Darwin']", pip_package: python@2}
+  - { role: carlba.pip, when: "ansible_os_family not in ['Darwin']", become: True }
+  - { role: carlba.pip, when: "ansible_os_family in ['Darwin']", pip_package: python@2}
   - role: carlba.bash_aliases
     bash_aliases:
       - { alias: 'vi', command: '{{ editor_command }}' }
