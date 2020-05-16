@@ -25,7 +25,7 @@
   become: "{{ (ansible_os_family in ['Darwin']) | ternary('false', 'true') }}"
   pip:
     name: neovim
-    executable: pip
+    executable: "{{ pip_executable }}"
     extra_args: --upgrade
   when: (is_privileged_user or ansible_os_family in ['Darwin']) and editor == 'neovim'
 
