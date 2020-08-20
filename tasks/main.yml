@@ -28,6 +28,9 @@
 - name: Set pip version
   set_fact:
     pip_executable: '{{ pip_version_result.stdout | regex_search("(pip\d?)") }}'
+    
+- debug:
+    msg: '{{ pip_executable }} pip executable'
 
 - name: 'Install neovim Python library'
   become: "{{ (ansible_os_family in ['Darwin']) | ternary('false', 'true') }}"
