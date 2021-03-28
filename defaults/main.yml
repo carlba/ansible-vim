@@ -1,4 +1,5 @@
 ---
 is_privileged_user: true
 editor: neovim # neovim or vim
-editor_languages: ['javascript', 'php', 'html', 'ruby', 'python']
+editor_languages: ['javascript', 'php', 'html', 'ruby', 'python', 'typescript']
+editor_theme: codedark

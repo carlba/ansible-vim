@@ -6,7 +6,9 @@
 
 - name: Ensure base dependencies are installed
   become: "{{ (ansible_os_family in ['Darwin']) | ternary('false', 'true') }}"
-  package: name={{item}}
+  package:
+    name: '{{item}}'
+    state: present
   with_items:
     - git
     - make
@@ -33,7 +35,7 @@
   become: "{{ (ansible_os_family in ['Darwin']) | ternary('false', 'true') }}"
   pip:
     name: neovim
-    executable: "{{ pip_executable }}"
+    executable: '{{ pip_executable }}'
     extra_args: --upgrade
   when: (is_privileged_user or ansible_os_family in ['Darwin']) and editor == 'neovim'
 
@@ -53,7 +55,8 @@
     body:
       langs: '{{ editor_languages }}'
       editor: '{{ editor_command }}'
-    status_code: 200
+      theme: '{{ editor_theme }}'
+    status_code: '200'
   register: uri_result
 
 - name: Ensure output of vim-bootstrap.com generate request is stored to init file
@@ -68,6 +71,8 @@
     marker: ' " {mark} ANSIBLE MANAGED BLOCK'
     block: |
       Plug 'vim-scripts/Zenburn'
+      Plug 'tomasiser/vim-code-dark'
+      Plug 'https://github.com/pangloss/vim-javascript.git'
 
 - name: Ensure neovim plugins are installed
   shell: 'nvim +PlugInstall +qall --headless'
@@ -89,9 +94,9 @@
     dest: '{{ (editor == "neovim") | ternary(ansible_env.HOME ~ "/.config/nvim/local_init.vim", ansible_env.HOME ~ "/.vimrc.local") }}'
     create: true
     marker: ' " {mark} ANSIBLE MANAGED BLOCK'
-    block: |
-      silent! colorscheme zenburn
+    block: |      
+      silent! colorscheme codedark
+      let g:airline_theme = 'codedark'
       set nocompatible
-      let g:airline_theme = 'lucius'
       autocmd FileType python setlocal colorcolumn=99
       set guicursor=
