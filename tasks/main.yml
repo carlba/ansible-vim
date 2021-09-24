@@ -25,12 +25,11 @@
   when: "ansible_os_family not in ['Darwin']"
 
 - name: 'Ensure {{ editor }} is the latest version (MacOS)'
-  become: true
   homebrew: 
     name: "{{ editor }}" 
     state: latest
+    path: /opt/homebrew/bin
   when: "ansible_os_family in ['Darwin']"
-
 
 - name: Check pip version
   shell: which pip || which pip3 || which pip2
@@ -39,6 +38,9 @@
 - name: Set pip version
   set_fact:
     pip_executable: '{{ pip_version_result.stdout | regex_search("(pip\d?)") }}'
+    
+- debug:
+    msg: '{{ pip_executable }} pip executable'
 
 - name: 'Install neovim Python library'
   become: "{{ (ansible_os_family in ['Darwin']) | ternary('false', 'true') }}"
@@ -57,7 +59,7 @@
 # TODO: Make this a bit cleaner
 - name: Retrieve result of vim-bootstrap post request
   uri:
-    url: 'http://vim-bootstrap.com/generate.vim'
+    url: 'https://vim-bootstrap.com/generate.vim'
     method: POST
     return_content: true
     body_format: form-urlencoded
