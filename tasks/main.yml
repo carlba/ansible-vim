@@ -20,8 +20,17 @@
   when: is_privileged_user and ansible_distribution in ['Ubuntu']
 
 - name: 'Ensure {{ editor }} is the latest version'
-  become: "{{ (ansible_os_family in ['Darwin']) | ternary('false', 'true') }}"
+  become: true
   package: name={{ editor }} state=latest
+  when: "ansible_os_family not in ['Darwin']"
+
+- name: 'Ensure {{ editor }} is the latest version (MacOS)'
+  become: true
+  homebrew: 
+    name: "{{ editor }}" 
+    state: latest
+  when: "ansible_os_family in ['Darwin']"
+
 
 - name: Check pip version
   shell: which pip || which pip3 || which pip2
