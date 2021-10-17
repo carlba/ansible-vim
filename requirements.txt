@@ -1,8 +1,16 @@
-ansible==2.10.7
-cffi==1.14.0
-cryptography==3.3.2
-Jinja2==2.11.3
-MarkupSafe==1.1.1
+ansible==4.7.0
+ansible-core==2.11.6
+-e git+ssh://git@github.com/carlba/ansible-vim.git@8204fabbf7f99fb0a3fd82a1b1fa532cb7d036d4#egg=ansible_vim
+cffi==1.15.0
+cryptography==35.0.0
+greenlet==1.1.2
+Jinja2==3.0.2
+MarkupSafe==2.0.1
+msgpack==1.0.2
+neovim==0.3.1
+packaging==21.0
 pycparser==2.20
-PyYAML==5.4
-six==1.14.0
+pynvim==0.4.3
+pyparsing==2.4.7
+PyYAML==6.0
+resolvelib==0.5.4

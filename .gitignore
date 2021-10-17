@@ -10,3 +10,4 @@ tests/roles
 
 # Python
 venv
+ansible_vim.egg-info

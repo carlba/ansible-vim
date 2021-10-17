@@ -17,9 +17,9 @@ Setup the environment
 3. Install the ansible environment
     
    ```bash
-   virtualenv -p python3 venv; source venv/bin/activate
+   python3 -m venv venv; source venv/bin/activate
    pip install -r requirements.txt
-   pip install .
+   pip install -e .
    ansible-galaxy install -r requirements.yml --roles-path=tests/roles
    ```
    
