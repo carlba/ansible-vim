@@ -2,7 +2,7 @@ ansible==4.7.0
 ansible-core==2.11.6
 -e git+ssh://git@github.com/carlba/ansible-vim.git@8204fabbf7f99fb0a3fd82a1b1fa532cb7d036d4#egg=ansible_vim
 cffi==1.15.0
-cryptography==35.0.0
+cryptography==39.0.1
 greenlet==1.1.2
 Jinja2==3.0.2
 MarkupSafe==2.0.1
