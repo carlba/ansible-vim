@@ -16,7 +16,7 @@
     - curl
   when: is_privileged_user
 
-- include: ubuntu.yml
+- import_tasks: ubuntu.yml
   when: is_privileged_user and ansible_distribution in ['Ubuntu']
 
 - name: 'Ensure {{ editor }} is the latest version'
@@ -73,11 +73,15 @@
 - name: Ensure output of vim-bootstrap.com generate request is stored to init file
   copy:
     content: '{{ uri_result.content }}'
-    dest: '{{ (editor == "neovim") | ternary(ansible_env.HOME ~ "/.config/nvim/init.vim", ansible_env.HOME ~ "/.vimrc") }}'
+    dest:
+      '{{ (editor == "neovim") | ternary(ansible_env.HOME ~ "/.config/nvim/init.vim",
+      ansible_env.HOME ~ "/.vimrc") }}'
 
 - name: Add custom plugins
   blockinfile:
-    dest: '{{ (editor == "neovim") | ternary(ansible_env.HOME ~ "/.config/nvim/local_bundles.vim", ansible_env.HOME ~ "/.vimrc.local.bundles") }}'
+    dest:
+      '{{ (editor == "neovim") | ternary(ansible_env.HOME ~ "/.config/nvim/local_bundles.vim",
+      ansible_env.HOME ~ "/.vimrc.local.bundles") }}'
     create: true
     marker: ' " {mark} ANSIBLE MANAGED BLOCK'
     block: |
@@ -88,7 +92,9 @@
 # nocompatible prevents home and end buttons from inserting H and F characters
 - name: 'Apply customized {{ editor }} settings'
   blockinfile:
-    dest: '{{ (editor == "neovim") | ternary(ansible_env.HOME ~ "/.config/nvim/local_init.vim", ansible_env.HOME ~ "/.vimrc.local") }}'
+    dest:
+      '{{ (editor == "neovim") | ternary(ansible_env.HOME ~ "/.config/nvim/local_init.vim",
+      ansible_env.HOME ~ "/.vimrc.local") }}'
     create: true
     marker: ' " {mark} ANSIBLE MANAGED BLOCK'
     block: |
